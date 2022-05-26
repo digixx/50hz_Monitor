@@ -32,10 +32,11 @@ SoftwareSerial LCD;
 
 const char* ssid = mySSID;
 const char* password = myPASSWORD;
+const char* sonde = mySonde;
 const long interval = 5000; // 5 Sec. 
 
 //Your IP address or domain name with URL path
-const char* SendDataToServer = myURL;
+const char* URL = myURL;
 
 volatile uint32_t TimerValue = 0;
 volatile int PulseCounter = 0;
@@ -124,8 +125,11 @@ void setup() {
 
   // Turn LCD Backlight on
   LCD.write(LCDBackLightOn);
-  delay(200);
 
+  LCD.write(LCDLine1);
+  LCD.print("  Netzfrequenz");
+  delay(100);
+  
   // save current time
   previousMillis = millis(); 
 }
@@ -145,9 +149,10 @@ void loop() {
     TotalTimerCounts = MaxTimerCounts - TimerValue;
     Period = 0.0000002 * TotalTimerCounts; // 5 us per Timertick
     Freq = PulsesToCount / (Period * 2);
-    LCD.write(LCDLine1);
-    LCD.print("FREQ: ");
-    LCD.println(Freq, 4);
+    LCD.write(LCDLine2);
+    LCD.print("   ");
+    LCD.print(Freq, 4);
+    LCD.print(" Hz");
     if (LogFreq > Freq) {
       LogFreq = Freq;
     }
@@ -156,12 +161,15 @@ void loop() {
   if(currentMillis - previousMillis >= interval) {
     // Check WiFi connection status
     if ((WiFiMulti.run() == WL_CONNECTED)) {
-      msg.concat(SendDataToServer);
+      msg.concat(URL);
+      msg.concat("?sonde=");
+      msg.concat(sonde);
+      msg.concat("&freq=");
       dtostrf(LogFreq, 4, 4, buff);
       LogFreq = 100;
       msg.concat(buff);
-      // Serial.print("HTTP data = ");
-      Serial.println(buff);
+      // Serial.print("HTTP URL = ");
+      Serial.println(msg);
       
       WiFiClient client;
       HTTPClient http;
