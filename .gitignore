@@ -1,1 +1,4 @@
 software/ESP8266_50Hz_Monitor/credentials.h
+KiCad/50Hz_Monitor-backups/*.*
+.gitignore.bak
+
